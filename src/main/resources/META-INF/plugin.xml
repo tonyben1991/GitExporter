@@ -1,0 +1,43 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>tech.omnidigit.GitExporter</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>GitExporter</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="tonyben1991@outlook.com">Tony Ben</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+    GitExporter 是一个基于 Git 提交记录的工具，用于自动导出增量发布文件包。<br>
+    它能够根据条件过滤 Git 提交记录，并将变更的文件导出到指定文件夹。<br>
+    ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>Git4Idea</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceImplementation="tech.omnidigit.gitexporter.store.GitExportSettings"/>
+    </extensions>
+
+    <actions>
+        <action id="GitExport.Action" class="tech.omnidigit.gitexporter.action.GitExportAction" text="Git Exporter"
+                description="Export files from Git commits">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="GitExport.Settings" class="tech.omnidigit.gitexporter.action.GitExportAction"
+                text="Git Exporter" description="Export files from Git commits">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
