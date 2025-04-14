@@ -31,10 +31,6 @@ class GitExportTask(
 ) : Task.Backgroundable(project, GitExportTaskBundle.message("task.title"), true) {
 
     override fun run(indicator: ProgressIndicator) {
-        val repo = findGitRepo() ?: throw IllegalStateException(
-            GitExportTaskBundle.message("error.no_repository")
-        )
-
         if (commits.isEmpty()) {
             println(GitExportTaskBundle.message("info.no_commits"))
             return
