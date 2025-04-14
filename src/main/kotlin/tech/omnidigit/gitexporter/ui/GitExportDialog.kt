@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.FormBuilder
 import tech.omnidigit.gitexporter.config.GitExportConfig
+import tech.omnidigit.gitexporter.resource.GitExportBundle
 import tech.omnidigit.gitexporter.store.GitExportSettings
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -25,8 +26,8 @@ class GitExportDialog(private val project: Project?) : DialogWrapper(project) {
     
     private val targetDirField = TextFieldWithBrowseButton().apply {
         addBrowseFolderListener(
-            "选择目标路径",
-            "选择导出的目标路径",
+            GitExportBundle.message("button.browse"),
+            GitExportBundle.message("label.target_dir"),
             null,
             FileChooserDescriptorFactory.createSingleLocalFileDescriptor()
                 .withFileFilter(VirtualFile::isDirectory)
@@ -39,7 +40,7 @@ class GitExportDialog(private val project: Project?) : DialogWrapper(project) {
     private val dateFormat = "yyyy/MM/dd HH:mm:ss"
 
     init {
-        title = "Git Export Configuration"
+        title = GitExportBundle.message("dialog.title")
         loadSettings()
         init()
     }
@@ -68,17 +69,19 @@ class GitExportDialog(private val project: Project?) : DialogWrapper(project) {
 
     override fun createCenterPanel(): JComponent {
         return FormBuilder.createFormBuilder()
-            .addLabeledComponent("目标路径:", targetDirField)
-            .addLabeledComponent("开始时间:", startDateField)
-            .addLabeledComponent("结束时间:", endDateField)
-            .addLabeledComponent("作者:", authorField)
-            .addLabeledComponent("信息:", messageField)
+            .addLabeledComponent(GitExportBundle.message("label.target_dir"), targetDirField)
+            .addLabeledComponent(GitExportBundle.message("label.start_date"), startDateField)
+            .addLabeledComponent(GitExportBundle.message("label.end_date"), endDateField)
+            .addLabeledComponent(GitExportBundle.message("label.author"), authorField)
+            .addLabeledComponent(GitExportBundle.message("label.message"), messageField)
             .addComponent(createHelpLabel())
             .panel
+        
+        
     }
 
     private fun createHelpLabel(): JComponent {
-        return JLabel("<html><i>如果不需要某个过滤保持空白</i></html>").apply {
+        return JLabel("<html><i>${GitExportBundle.message("help.text")}</i></html>").apply {
             border = BorderFactory.createEmptyBorder(5, 0, 0, 0)
         }
     }
@@ -93,7 +96,7 @@ class GitExportDialog(private val project: Project?) : DialogWrapper(project) {
     private fun validateFields(): ValidationInfo {
         return when {
             targetDirField.text.trim().isEmpty() ->
-                ValidationInfo("目标目录不能为空", targetDirField)
+                ValidationInfo(GitExportBundle.message("error.dir_required"), targetDirField)
 
             validateDateFields() != null -> validateDateFields()!!
             else -> ValidationInfo("OK").withOKEnabled()
@@ -107,7 +110,7 @@ class GitExportDialog(private val project: Project?) : DialogWrapper(project) {
             endDateField.text.trim().takeIf { it.isNotEmpty() }?.let { LocalDate.parse(it, formatter) }
             null
         } catch (e: DateTimeParseException) {
-            ValidationInfo("Date format must be $dateFormat", startDateField)
+            ValidationInfo(GitExportBundle.message("error.date_format"), startDateField)
         }
     }
 

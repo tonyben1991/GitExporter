@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.components.JBScrollPane
 import git4idea.GitCommit
+import tech.omnidigit.gitexporter.resource.CommitPreviewBundle
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension
@@ -27,18 +28,23 @@ class CommitPreviewDialog(private val project: Project) : DialogWrapper(project)
         cellRenderer = CommitListRenderer()
     }
 
-    private val treeModel = DefaultTreeModel(DefaultMutableTreeNode("请选择一个提交"))
+    private val treeModel = DefaultTreeModel(
+        DefaultMutableTreeNode(CommitPreviewBundle.message("placeholder.select_commit"))
+    )
     private val fileTree = JTree(treeModel).apply {
         isRootVisible = false
         showsRootHandles = true
     }
 
     private val commitSelections = mutableMapOf<GitCommit, Boolean>()
-    private val exportClassFiles = JCheckBox("同时导出对应的.class文件", true)
+    private val exportClassFiles = JCheckBox(
+        CommitPreviewBundle.message("checkbox.export_class"),
+        true
+    )
     private val dateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
 
     init {
-        title = "选择要导出的提交"
+        title = CommitPreviewBundle.message("dialog.title")
         init()
 
         commitList.addListSelectionListener { e ->
@@ -82,22 +88,28 @@ class CommitPreviewDialog(private val project: Project) : DialogWrapper(project)
 
     private fun createButtonPanel(): JPanel {
         return JPanel().apply {
-            add(JButton("全选").apply { addActionListener { selectAllCommits() } })
-            add(JButton("取消全选").apply { addActionListener { deselectAllCommits() } })
-            add(JButton("反选").apply { addActionListener { toggleSelection() } })
+            add(JButton(CommitPreviewBundle.message("button.select_all")).apply {
+                addActionListener { selectAllCommits() }
+            })
+            add(JButton(CommitPreviewBundle.message("button.deselect_all")).apply {
+                addActionListener { deselectAllCommits() }
+            })
+            add(JButton(CommitPreviewBundle.message("button.invert")).apply {
+                addActionListener { toggleSelection() }
+            })
         }
     }
 
     private fun createFileTreePanel(): JPanel {
         return JPanel(BorderLayout()).apply {
             add(JBScrollPane(fileTree), BorderLayout.CENTER)
-            border = BorderFactory.createTitledBorder("修改的文件")
+            border = BorderFactory.createTitledBorder(CommitPreviewBundle.message("tree.root"))
             preferredSize = Dimension(400, 200)
         }
     }
 
     private fun updateFileTree(commit: GitCommit) {
-        val root = DefaultMutableTreeNode("修改的文件")
+        val root = DefaultMutableTreeNode(CommitPreviewBundle.message("tree.root"))
         getFiles(commit)?.takeIf { it.isNotEmpty() }?.let { files ->
             val basePath = project.basePath
             val basePathLength = basePath?.lastIndexOf('/') ?: 0
@@ -105,17 +117,17 @@ class CommitPreviewDialog(private val project: Project) : DialogWrapper(project)
 
             files.forEach { file ->
                 val fullPath = file.path
-                val relativePath = basePath?.let { bp -> 
+                val relativePath = basePath?.let { bp ->
                     if (fullPath.startsWith(bp)) fullPath.substring(basePathLength) else fullPath
                 }?.removePrefix("/") ?: fullPath
 
                 var parent = root
                 val currentPath = StringBuilder()
-                
+
                 relativePath.split('/').forEach { part ->
                     if (currentPath.isNotEmpty()) currentPath.append('/')
                     currentPath.append(part)
-                    
+
                     val pathKey = currentPath.toString()
                     val node = nodeMap.getOrPut(pathKey) {
                         DefaultMutableTreeNode(part).also { parent.add(it) }

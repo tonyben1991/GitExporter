@@ -14,6 +14,7 @@ import git4idea.GitCommit
 import git4idea.repo.GitRepository
 import git4idea.repo.GitRepositoryManager
 import tech.omnidigit.gitexporter.config.GitExportConfig
+import tech.omnidigit.gitexporter.resource.GitExportTaskBundle
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -27,12 +28,15 @@ class GitExportTask(
     private val project: Project,
     private val config: GitExportConfig,
     private val commits: List<GitCommit>
-) : Task.Backgroundable(project, "Exporting Git Changes", true) {
+) : Task.Backgroundable(project, GitExportTaskBundle.message("task.title"), true) {
 
     override fun run(indicator: ProgressIndicator) {
-        val repo = findGitRepo() ?: throw IllegalStateException("No Git repository found in the project.")
+        val repo = findGitRepo() ?: throw IllegalStateException(
+            GitExportTaskBundle.message("error.no_repository")
+        )
+
         if (commits.isEmpty()) {
-            println("No commits to export.")
+            println(GitExportTaskBundle.message("info.no_commits"))
             return
         }
         exportFiles(commits)
@@ -65,8 +69,7 @@ class GitExportTask(
 
         psiJavaFile?.let {
             true.getClassOutputFiles(it)
-                .takeIf { files -> files.isNotEmpty() }
-                ?.let(::exportFiles)
+                .takeIf { files -> files.isNotEmpty() }?.forEach(::exportFile)
         }
     }
 
@@ -112,20 +115,16 @@ class GitExportTask(
         return "$outputRoot${File.separator}$packagePath${File.separator}$className.class"
     }
 
-    private fun exportFiles(files: List<VirtualFile>) {
-        files.forEach(::exportFile)
-    }
-
     private fun exportFile(file: VirtualFile) {
-        println("Exporting file: ${file.path}")
+        println(GitExportTaskBundle.message("log.exporting_file", file.path))
         try {
             val targetDir = File(config.targetDir)
             val basePath = project.basePath ?: return
-            
+
             val sourceFile = File(file.path)
             val relativePath = file.path.removePrefix(basePath)
             val targetFile = File(targetDir, relativePath)
-            
+
             targetFile.parentFile?.mkdirs()
             Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
         } catch (e: IOException) {

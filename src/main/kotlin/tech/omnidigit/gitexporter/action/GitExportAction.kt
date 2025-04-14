@@ -6,6 +6,7 @@ import tech.omnidigit.gitexporter.helper.GitExportTask
 import tech.omnidigit.gitexporter.helper.GitFilterTask
 import tech.omnidigit.gitexporter.ui.CommitPreviewDialog
 import tech.omnidigit.gitexporter.ui.GitExportDialog
+import java.util.*
 
 /*
  * Copyright (c) 2025 Tony Ben
@@ -13,6 +14,7 @@ import tech.omnidigit.gitexporter.ui.GitExportDialog
 
 class GitExportAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
+        Locale.setDefault(Locale.ENGLISH)
         val project = e.project ?: return
         val gitExportDialog = GitExportDialog(project)
 

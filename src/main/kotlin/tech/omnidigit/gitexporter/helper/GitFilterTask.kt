@@ -9,6 +9,7 @@ import git4idea.history.GitHistoryUtils
 import git4idea.repo.GitRepository
 import git4idea.repo.GitRepositoryManager
 import tech.omnidigit.gitexporter.config.GitExportConfig
+import tech.omnidigit.gitexporter.resource.GitFilterBundle
 import tech.omnidigit.gitexporter.ui.CommitPreviewDialog
 import java.time.Instant
 import java.time.LocalDateTime
@@ -24,10 +25,12 @@ class GitFilterTask(
     project: Project,
     private val config: GitExportConfig,
     private val previewDialog: CommitPreviewDialog
-) : Backgroundable(project, "Git Exporter", true) {
+) : Backgroundable(project, GitFilterBundle.message("task.title"), true) {
 
     override fun run(indicator: ProgressIndicator) {
-        val repo = findGitRepo() ?: throw IllegalStateException("No Git repository found in the project.")
+        val repo = findGitRepo() ?: throw IllegalStateException(
+            GitFilterBundle.message("error.no_repository")
+        )
         previewDialog.addCommits(filterCommits(repo))
     }
 
@@ -45,7 +48,7 @@ class GitFilterTask(
                 }
         } catch (e: VcsException) {
             e.printStackTrace()
-            throw RuntimeException(e)
+            throw RuntimeException(GitFilterBundle.message("error.history_failed"), e)
         }
     }
 

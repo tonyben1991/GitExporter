@@ -17,7 +17,13 @@ intellij {
     version.set("2024.1.7")
     type.set("IU") // Target IDE Platform
 
-    plugins.set(listOf("Git4Idea","java"))
+    plugins.set(listOf("java", "com.intellij.java", "Git4Idea", "com.intellij.uiDesigner"))
+}
+
+sourceSets{
+    main {
+        java.srcDirs("resources")
+    }
 }
 
 tasks {
@@ -43,5 +49,9 @@ tasks {
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
+    }
+    
+    processResources {
+        from("resources")
     }
 }
